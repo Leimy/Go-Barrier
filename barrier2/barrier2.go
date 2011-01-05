@@ -6,22 +6,22 @@ import (
 )
 
 type Group struct {
-	n int
-	l * sync.Mutex
-	waiter * sync.RWMutex
+	n      int
+	l      *sync.Mutex
+	waiter *sync.RWMutex
 }
 
-func NewGroup(n int) (* Group) {
+func NewGroup(n int) *Group {
 	if n <= 0 {
-		panic ("Group must be >= 1")
+		panic("Group must be >= 1")
 	}
 	waiter := &sync.RWMutex{}
 	waiter.Lock()
 	return &Group{n, &sync.Mutex{}, waiter}
 }
 
-func (g* Group) Wait () {
-	g.l.Lock() 
+func (g *Group) Wait() {
+	g.l.Lock()
 	g.n--
 	if g.n == 0 {
 		g.waiter.Unlock()
@@ -30,9 +30,9 @@ func (g* Group) Wait () {
 	g.waiter.RLock()
 }
 
-func (g* Group) Reset (n int) {
+func (g *Group) Reset(n int) {
 	if n <= 0 {
-		panic ("Group must be >=1")
+		panic("Group must be >=1")
 	}
 	g.l.Lock()
 	g.n = n
@@ -40,4 +40,10 @@ func (g* Group) Reset (n int) {
 	g.waiter = &sync.RWMutex{}
 	g.waiter.Lock()
 	g.l.Unlock()
+}
+
+// just release all the waiters?  Only really useful if not everyone made it to the
+// barrier.
+func (g *Group) Destroy() {
+	g.waiter.Unlock()
 }
