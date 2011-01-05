@@ -1,0 +1,4 @@
+Just a barrier implementation for Go, using RWMutex, and a pair of channels as the 
+main implementation pieces.
+
+
