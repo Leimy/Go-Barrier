@@ -1,0 +1,27 @@
+package barrier2
+
+
+import (
+	"sync"
+)
+
+type Group struct {
+	n int
+	l * sync.Mutex
+	run * sync.Mutex
+}
+
+func NewGroup(n int) (* Group) {
+	r := &sync.Mutex{}
+	r.Lock()
+	return &Group{n, &sync.Mutex{}, r}
+}
+
+func (g* Group) Wait () {
+	g.l.Lock() 
+	g.n--
+	if g.n == 0 {
+		g.run.Unlock()
+	}
+	g.l.Unlock()
+}
