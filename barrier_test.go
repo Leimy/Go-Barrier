@@ -102,7 +102,6 @@ func Test4(t *testing.T) {
 	// Reset and run again, with different work
 	g.Reset()
 	
-//	g = NewGroup(GroupSize)
 	for i := 0; i < size; i++ {
 		go func (i, size int) {
 			t.Logf("index is: %d\n", i)
