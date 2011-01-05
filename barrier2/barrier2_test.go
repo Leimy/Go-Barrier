@@ -57,3 +57,49 @@ func Test3(t *testing.T) {
 		}
 	}
 }
+
+func Test4(t *testing.T) {
+	size := 10
+	Test4data := make([]int, size)
+
+	GroupSize := size + 1
+	g := NewGroup(GroupSize)
+
+	for i := 0; i < size; i++ {
+	 	go func(i int) {
+	 		Test4data[i] = i
+	 		g.Wait()
+	 	}(i)
+	}
+	g.Wait()  // if you comment this out, none of the array updates will be observed per the Go memory model
+
+	t.Logf("Test4data: %v\n", Test4data)
+	// check results
+	for i := 0; i < size; i++ {
+		if Test4data[i] != i {
+			t.Errorf("Test4data[%d] = %d, should be %d\n", i, Test4data[i], i)
+		}
+	}
+
+	// Reset and run again, with different work
+	g.Reset(GroupSize)
+	
+	for i := 0; i < size; i++ {
+		go func (i, size int) {
+			t.Logf("index is: %d\n", i)
+			Test4data[i] = size-i
+			g.Wait()
+		}(i, size)
+		
+	}
+	g.Wait()
+
+	t.Logf("Test4data: %v\n", Test4data)
+	// check results
+	for i := 0; i < size; i++ {
+		t.Logf("Test4data[%d] = %d\n", i, Test4data[i])
+		if Test4data[i] != size - i {
+			t.Errorf("Test4data[%d] = %d, should be %d\n", i, Test4data[i], size-i)
+		}
+	}
+}

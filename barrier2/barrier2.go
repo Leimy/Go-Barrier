@@ -29,3 +29,12 @@ func (g* Group) Wait () {
 	g.l.Unlock()
 	g.waiter.RLock()
 }
+
+func (g* Group) Reset (n int) {
+	g.l.Lock()
+	g.n = n
+	g.waiter.Unlock()
+	g.waiter = &sync.RWMutex{}
+	g.waiter.Lock()
+	g.l.Unlock()
+}
