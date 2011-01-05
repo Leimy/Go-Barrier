@@ -1,4 +1,6 @@
 Just a barrier implementation for Go, using RWMutex, and a pair of channels as the 
 main implementation pieces.
 
+barrier2 subdirectory has a goroutine-free implementation, still based on a 
+RWMutex, and some unit tests.
 
