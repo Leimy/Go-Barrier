@@ -31,6 +31,9 @@ func (g* Group) Wait () {
 }
 
 func (g* Group) Reset (n int) {
+	if n <= 0 {
+		panic ("Group must be >=1")
+	}
 	g.l.Lock()
 	g.n = n
 	g.waiter.Unlock()
