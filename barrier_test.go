@@ -65,7 +65,7 @@ func Test3(t *testing.T) {
 	for i := 0; i < SIZE; i++ {
 		go worker2(i, g, t)
 	}
-	g.Wait()
+	g.Wait()  // if you comment this out, none of the array updates will be observed per the Go memory model
 
 	// check results
 	for i := 0; i < SIZE; i++ {
