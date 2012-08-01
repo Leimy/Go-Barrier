@@ -1,2 +1,15 @@
 Barrier implementation based on a Reader/Writer Lock, a mutex and a counter.
 
+Unfortunately this package actually predates the lovely "go" tool and the repository isn't
+well named.  The package is called "barrrier" but you can import it by:
+
+import (
+	"github.com/Leimy/Go-Barrier"
+)
+
+Then use it as "barrer.NewGroup(<size>)" etc.
+
+I could probably fork it on github to fix that, but I'm not sure it's worth it as I'm the
+only one using this to the best of my knowledge.
+
+
