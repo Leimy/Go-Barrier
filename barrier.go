@@ -30,8 +30,3 @@ func (g *Group) Wait() {
 	g.waiter.RLock()
 }
 
-// just release all the waiters?  Only really useful if not everyone made it to the
-// barrier.
-func (g *Group) Destroy() {
-	g.waiter.Unlock()
-}
