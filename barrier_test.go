@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func worker(n int, g *Group, t *testing.T, bc chan<- bool) {
+func worker(n int, b *Barrier, t *testing.T, bc chan<- bool) {
 	t.Logf("[%d] <---\n", n)
-	g.Wait()
+	b.Wait()
 	t.Logf("[%d] --->\n", n)
 	bc <- true
 }
@@ -15,7 +15,7 @@ func Test1(t *testing.T) {
 	t.Log("Test1")
 	TEST := 10
 	bc := make(chan bool, TEST)
-	g := NewGroup(TEST)
+	g := NewBarrier(TEST)
 	for i := 0; i < TEST; i++ {
 		go worker(i, g, t, bc)
 	}
@@ -29,15 +29,15 @@ const SIZE = 10
 
 var Test3data [SIZE]int
 
-func worker2(n int, g *Group, t *testing.T) {
+func worker2(n int, b *Barrier, t *testing.T) {
 	Test3data[n] = n
-	g.Wait()
+	b.Wait()
 }
 
 func Test3(t *testing.T) {
 	t.Log("Test3")
 	GroupSize := SIZE + 1
-	g := NewGroup(GroupSize) // +1 for me, who will wait for SIZE to be done
+	b := NewBarrier(GroupSize) // +1 for me, who will wait for SIZE to be done
 
 	// check initialization
 	for i := 0; i < SIZE; i++ {
@@ -47,9 +47,9 @@ func Test3(t *testing.T) {
 	}
 
 	for i := 0; i < SIZE; i++ {
-		go worker2(i, g, t)
+		go worker2(i, b, t)
 	}
-	g.Wait() // if you comment this out, none of the array updates will be observed per the Go memory model
+	b.Wait() // if you comment this out, none of the array updates will be observed per the Go memory model
 
 	t.Logf("Test3data = %v\n", Test3data)
 	// check results
@@ -65,18 +65,18 @@ func Test4(t *testing.T) {
 	Test4data := make([]int, size)
 
 	GroupSize := size
-	g := NewGroup(GroupSize)
+	b := NewBarrier(GroupSize)
 
 	for i := 0; i < size-1; i++ {
 		go func(i int) {
 			t.Logf("I'm %d and I'm setting index %d to %d\n", i, i, i)
 			Test4data[i] = i
-			g.Wait()
+			b.Wait()
 		}(i)
 	}
 	Test4data[size-1] = size - 1
 	t.Logf("Test4data: about to wait\n")
-	g.Wait() // if you comment this out, none of the array updates will be observed per the Go memory model
+	b.Wait() // if you comment this out, none of the array updates will be observed per the Go memory model
 
 	t.Logf("Test4data: %v\n", Test4data)
 	// check results
@@ -87,17 +87,18 @@ func Test4(t *testing.T) {
 	}
 
 	// Reset and run again, with different work
-	g = NewGroup(GroupSize)
+	b = NewBarrier(GroupSize)
 
-	for i := 0; i < size; i++ {
+	for i := 0; i < size-1; i++ {
 		go func(i, size int) {
 			t.Logf("index is: %d\n", i)
 			Test4data[i] = size - i
-			g.Wait()
+			b.Wait()
 		}(i, size)
 
 	}
-	g.Wait()
+	Test4data[size-1] = 1
+	b.Wait()
 
 	t.Logf("Test4data: %v\n", Test4data)
 	// check results
