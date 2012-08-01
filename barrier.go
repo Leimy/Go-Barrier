@@ -1,64 +1,37 @@
-package barrier
+package barrier2
+
 
 import (
 	"sync"
 )
 
 type Group struct {
-	count int // number of checkins
-	total int
-	signalin chan bool
-	resize chan int
-	die chan bool
-	waiter * sync.RWMutex
+	n      int
+	l      *sync.Mutex
+	waiter *sync.RWMutex
 }
 
-func controller (g * Group) {
-	var r int
-	for g.count != g.total {
-		select {
-		case <- g.die:
-			break
-		case <- g.signalin:
-			g.count++
-		case r = <- g.resize:
-			g.total += r 
-		}
+func NewGroup(n int) *Group {
+	if n <= 0 {
+		panic("Group must be >= 1")
 	}
-
-	g.waiter.Unlock()
+	waiter := &sync.RWMutex{}
+	waiter.Lock()
+	return &Group{n, &sync.Mutex{}, waiter}
 }
 
-func NewGroup (size int) (* Group) {
-	g := &Group{0,size, make(chan bool, size), make(chan int), make(chan bool), &sync.RWMutex{}}
-	g.waiter.Lock()
-	go controller(g)
-	return g
-}
-
-func (g * Group) AddN (n int) {
-	g.resize <- n
-}
-
-func (g * Group) Wait () {
-	g.signalin <- true;
+func (g *Group) Wait() {
+	g.l.Lock()
+	g.n--
+	if g.n == 0 {
+		g.waiter.Unlock()
+	}
+	g.l.Unlock()
 	g.waiter.RLock()
 }
 
-func (g * Group) Destroy () {
-	if g.count != g.total {
-		g.die <- true
-	}
+// just release all the waiters?  Only really useful if not everyone made it to the
+// barrier.
+func (g *Group) Destroy() {
+	g.waiter.Unlock()
 }
-
-func (g * Group) Reset () {
-	g.Destroy()
-	g.count = 0
-	g.waiter = &sync.RWMutex{}
-	g.waiter.Lock()
-	go controller(g)
-}
-		
-
-	
-	

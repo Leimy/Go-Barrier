@@ -1,4 +1,4 @@
-package barrier
+package barrier2
 
 import (
 	"testing"
@@ -24,24 +24,6 @@ func Test1(t *testing.T) {
 		<- bc
 	}
 }
-
- func Test2(t *testing.T) {
-	t.Log("Test2")
-	TEST_START := 10
-	bc := make(chan bool)
-	g := NewGroup(TEST_START)
-	// add some in
-	g.AddN(10)
-	for i := 0; i < TEST_START+10; i++ {
-		go worker(i, g, t, bc)
-	}
-
-	for i := 0; i < TEST_START+10; i++ {
-		<- bc
-	}
-}
-
-
 const SIZE=10
 var Test3data [SIZE] int
 
@@ -67,9 +49,9 @@ func Test3(t *testing.T) {
 	}
 	g.Wait()  // if you comment this out, none of the array updates will be observed per the Go memory model
 
+	t.Logf("Test3data = %v\n", Test3data)
 	// check results
 	for i := 0; i < SIZE; i++ {
-		t.Logf("Test3data[%d] = %d\n", i, Test3data[i])
 		if Test3data[i] != i {
 			t.Errorf("Test3data[%d] = %d, should be %d\n", i, Test3data[i], i)
 		}
@@ -80,15 +62,18 @@ func Test4(t *testing.T) {
 	size := 10
 	Test4data := make([]int, size)
 
-	GroupSize := size + 1
+	GroupSize := size
 	g := NewGroup(GroupSize)
 
-	for i := 0; i < size; i++ {
+	for i := 0; i < size - 1; i++ {
 	 	go func(i int) {
+			t.Logf("I'm %d and I'm setting index %d to %d\n", i, i, i)
 	 		Test4data[i] = i
 	 		g.Wait()
 	 	}(i)
 	}
+	Test4data[size-1] = size - 1
+	t.Logf("Test4data: about to wait\n")
 	g.Wait()  // if you comment this out, none of the array updates will be observed per the Go memory model
 
 	t.Logf("Test4data: %v\n", Test4data)
@@ -99,8 +84,8 @@ func Test4(t *testing.T) {
 		}
 	}
 
-	// Reset and run again, with different work
-	g.Reset()
+        // Reset and run again, with different work
+	g = NewGroup(GroupSize)
 	
 	for i := 0; i < size; i++ {
 		go func (i, size int) {
