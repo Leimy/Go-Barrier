@@ -1,7 +1,16 @@
 Barrier implementation based on a Reader/Writer Lock, a mutex and a counter.
 
-Unfortunately this package actually predates the lovely "go" tool and the repository isn't
-well named.  The package is called "barrrier" but you can import it by:
+It's a minimal sub-implemenation of something like java.util.concurrent.CyclicBarrier, or an MPI_Barrier.  
+
+The idea is you create a barrier, sized appropriately for the number of workers you'd like to have synchronized for some amount of work or completion of work.  None of the goroutines can make progress past the barrier until all of them have checked in.  This is a common primitive in parallel decomposition patterns.
+
+Go has a sync integrated primitve called "WaitGroup", but I'm not a big fan of that interface, and I've not often seen examples of barriers where I needed to grow the number of parties waiting on the barrier dynamically while already working within a barrier context.  That said WaitGroups are a bit more general, but have some occasions where they can panic after they've been initialized (when you use the Add method and reduce the count too low).
+
+==================
+Packaging Problems (not too bad, but not very idiomatic)
+==================
+
+Unfortunately this package actually predates the lovely "go" tool and the repository isn't well named.  The package is called "barrrier" but you can import it by:
 
 import (
 	"github.com/Leimy/Go-Barrier"
@@ -9,7 +18,7 @@ import (
 
 Then use it as "barrer.NewGroup(<size>)" etc.
 
-I could probably fork it on github to fix that, but I'm not sure it's worth it as I'm the
-only one using this to the best of my knowledge.
+I could probably fork it on github to fix that, but I'm not sure it's worth it as I'm the only one using this to the best of my knowledge.
 
+I absolutely love not writing Makefiles anymore though, so I'll probably just fix this little bit up later.  
 
