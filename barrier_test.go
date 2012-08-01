@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func worker (n int, g * Group, t *testing.T, bc chan <- bool) {
+func worker(n int, g *Group, t *testing.T, bc chan<- bool) {
 	t.Logf("[%d] <---\n", n)
 	g.Wait()
 	t.Logf("[%d] --->\n", n)
@@ -16,18 +16,20 @@ func Test1(t *testing.T) {
 	TEST := 10
 	bc := make(chan bool, TEST)
 	g := NewGroup(TEST)
-	for i := 0; i < TEST; i++ {  
+	for i := 0; i < TEST; i++ {
 		go worker(i, g, t, bc)
 	}
-	
+
 	for i := 0; i < TEST; i++ {
-		<- bc
+		<-bc
 	}
 }
-const SIZE=10
-var Test3data [SIZE] int
 
-func worker2(n int, g * Group, t *testing.T) {
+const SIZE = 10
+
+var Test3data [SIZE]int
+
+func worker2(n int, g *Group, t *testing.T) {
 	Test3data[n] = n
 	g.Wait()
 }
@@ -47,7 +49,7 @@ func Test3(t *testing.T) {
 	for i := 0; i < SIZE; i++ {
 		go worker2(i, g, t)
 	}
-	g.Wait()  // if you comment this out, none of the array updates will be observed per the Go memory model
+	g.Wait() // if you comment this out, none of the array updates will be observed per the Go memory model
 
 	t.Logf("Test3data = %v\n", Test3data)
 	// check results
@@ -65,16 +67,16 @@ func Test4(t *testing.T) {
 	GroupSize := size
 	g := NewGroup(GroupSize)
 
-	for i := 0; i < size - 1; i++ {
-	 	go func(i int) {
+	for i := 0; i < size-1; i++ {
+		go func(i int) {
 			t.Logf("I'm %d and I'm setting index %d to %d\n", i, i, i)
-	 		Test4data[i] = i
-	 		g.Wait()
-	 	}(i)
+			Test4data[i] = i
+			g.Wait()
+		}(i)
 	}
 	Test4data[size-1] = size - 1
 	t.Logf("Test4data: about to wait\n")
-	g.Wait()  // if you comment this out, none of the array updates will be observed per the Go memory model
+	g.Wait() // if you comment this out, none of the array updates will be observed per the Go memory model
 
 	t.Logf("Test4data: %v\n", Test4data)
 	// check results
@@ -84,16 +86,16 @@ func Test4(t *testing.T) {
 		}
 	}
 
-        // Reset and run again, with different work
+	// Reset and run again, with different work
 	g = NewGroup(GroupSize)
-	
+
 	for i := 0; i < size; i++ {
-		go func (i, size int) {
+		go func(i, size int) {
 			t.Logf("index is: %d\n", i)
-			Test4data[i] = size-i
+			Test4data[i] = size - i
 			g.Wait()
 		}(i, size)
-		
+
 	}
 	g.Wait()
 
@@ -101,7 +103,7 @@ func Test4(t *testing.T) {
 	// check results
 	for i := 0; i < size; i++ {
 		t.Logf("Test4data[%d] = %d\n", i, Test4data[i])
-		if Test4data[i] != size - i {
+		if Test4data[i] != size-i {
 			t.Errorf("Test4data[%d] = %d, should be %d\n", i, Test4data[i], size-i)
 		}
 	}

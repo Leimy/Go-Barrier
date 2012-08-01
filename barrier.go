@@ -1,6 +1,5 @@
 package barrier
 
-
 import (
 	"sync"
 )
@@ -29,4 +28,3 @@ func (g *Group) Wait() {
 	g.l.Unlock()
 	g.waiter.RLock()
 }
-
