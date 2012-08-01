@@ -1,4 +1,4 @@
-package barrier2
+package barrier
 
 import (
 	"testing"
