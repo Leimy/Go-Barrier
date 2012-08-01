@@ -6,7 +6,7 @@ import (
 
 // A Barrier is a synchronization mechanism for groups of worker goroutines.
 // Barriers are used to synchronize that group of goroutines to different points
-// in a parallel algorithm.  For example many goroutines may be assigned
+// in a parallel algorithm.  For example, many goroutines may be assigned
 // ownership of parts of an array or slice for updating in parallel, and another
 // goroutine may wish to synchronize across the entire group to get the results.
 //
@@ -19,7 +19,7 @@ type Barrier struct {
 }
 
 // NewBarrier creates a new barrier of size n.  Subsequent calls to Wait will
-// block all goroutines that have called it until n Wait is called n times.
+// block all goroutines that have called it until Wait is called n times.
 func NewBarrier(n int) *Barrier {
 	if n <= 0 {
 		panic("Group must be >= 1")
@@ -30,7 +30,7 @@ func NewBarrier(n int) *Barrier {
 }
 
 // Wait blocks until all the members of the group (size n from NewBarrier) have
-// "checked in" by calling Wait.
+// "checked in".
 func (b *Barrier) Wait() {
 	b.l.Lock()
 	b.n--
